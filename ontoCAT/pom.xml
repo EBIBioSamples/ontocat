@@ -15,13 +15,35 @@
     <packaging>jar</packaging>
     <version>0.9.9.3-SNAPSHOT</version>
     <name>ontoCAT</name>
+    
+    <description>
+	    OntoCAT provides high level abstraction for interacting with ontology resources including local 
+	    ontology files in standard OWL and OBO formats (via  OWL API) and public ontology repositories.
+	    Each resource is wrapped behind easy to learn Java, Bioconductor/R and REST web service commands enabling reuse 
+	    and integration of ontology software efforts despite variation in technologies.
+    </description>
     <url>http://www.ontocat.org</url>
 
     <properties>
-        <skipTests>true</skipTests>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <copyright.message>Copyright © 2010 European Bioinformatics Institute and University of Groningen. Released under LGPLv3.</copyright.message>
     </properties>
+    
     <build>
+    
+			  <resources>
+				  <resource>
+						<directory>src/main/resources</directory>
+						<filtering>true</filtering>
+				  </resource>
+			  </resources>
+		
+			  <testResources>
+				  <testResource>
+				   <directory>src/test/resources</directory>
+				   <filtering>true</filtering>
+				  </testResource>
+			  </testResources>
 
 				<extensions>
 			    <extension>
@@ -32,11 +54,6 @@
 				</extensions>
 
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.6</version>
-            </plugin>
 
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -46,35 +63,147 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
+					  <plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-surefire-plugin</artifactId>
+					    <version>2.11</version>
+					    <configuration>
+					      <properties>
+					        <property>
+					        	<!-- Prints out spaces and test name before/after every test method and automatically -->
+					          <name>listener</name>
+					          <value>uk.ac.ebi.utils.test.junit.TestOutputDecorator</value>
+					        </property>
+					       </properties>
+					    </configuration>
+					  </plugin>
 
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+						<!--
+							Builds various jars and the -full.zip. Please note that you need something like: mvn site package to
+							include the site/ directory into the -full.zip. 
+						 -->
+				    <plugin>
+			        <artifactId>maven-assembly-plugin</artifactId>
+			        <configuration>
+				  			<archive>
+					    		<manifest>
+					      		<mainClass>uk.ac.ebi.ontocat.examples.Example3</mainClass>
+					      	</manifest>
+								</archive>			              
+			        </configuration>
+			        <executions>
+			          <execution>
+			            <id>deps</id>
+			            <configuration>
+			              <finalName>${project.name}-${project.version}-with-deps</finalName>
+			              <appendAssemblyId>false</appendAssemblyId>
+			              <attach>false</attach>
+			              <descriptors>
+			              	<descriptor>src/main/assembly/deps.xml</descriptor>
+			              </descriptors>
+			            </configuration>
+			            <phase>package</phase>
+			            <goals>
+			            	<goal>single</goal>
+			            </goals>
+			          </execution>
+			          <execution>
+			            <id>small</id>
+			            <configuration>
+			              <finalName>${project.name}-${project.version}-with-deps-small</finalName>
+			              <appendAssemblyId>false</appendAssemblyId>
+			              <attach>false</attach>
+			              <descriptors>
+			              	<descriptor>src/main/assembly/small.xml</descriptor>
+			              </descriptors>
+			            </configuration>
+			            <phase>package</phase>
+			            <goals>
+			            	<goal>single</goal>
+			            </goals>
+			          </execution>
+			          <execution>
+			            <id>bioconductor</id>
+			            <configuration>
+			              <finalName>${project.name}-${project.version}-bioconductor</finalName>
+			              <appendAssemblyId>false</appendAssemblyId>
+			              <attach>false</attach>
+			              <descriptors>
+			              	<descriptor>src/main/assembly/bioconductor.xml</descriptor>
+			              </descriptors>
+			            </configuration>
+			            <phase>package</phase>
+			            <goals>
+			            	<goal>single</goal>
+			            </goals>
+			          </execution>
+			          <execution>
+									<id>distro</id>
+									<configuration>
+										<finalName>${project.name}-${project.version}-distrib</finalName>
+										<appendAssemblyId>false</appendAssemblyId>
+										<attach>false</attach>
+										<descriptors>
+											<descriptor>src/main/assembly/distro.xml</descriptor>
+										</descriptors>
+									</configuration>
+									<phase>package</phase>
+									<goals>
+										<goal>single</goal>
+									</goals>
+			          </execution>
+			        </executions>
+				    </plugin>		
 
-                </configuration>
-            </plugin>
+						<plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-site-plugin</artifactId>
+	            <version>3.0-beta-3</version>
+	        	</plugin>
+						 
         </plugins>
     </build>
 
     <!-- Reporting/Documentation output -->
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <aggregate>true</aggregate>
-                </configuration>
+			      <plugin>
+			        <groupId>org.apache.maven.plugins</groupId>
+			        <artifactId>maven-surefire-report-plugin</artifactId>
+			      </plugin>        
+			      
+					  <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-javadoc-plugin</artifactId>
+	            <configuration>
+	            	<author>true</author>
+	            	<version>true</version>
+	           		<use>true</use>
+	           		<windowtitle>OntoCAT</windowtitle>
+	           		<doctitle>OntoCAT ${project.version} API Documentation</doctitle>
+	           		<bottom>${copyright.message}</bottom>
+	           		<header>OntoCAT ${project.version}</header>
+	           		<footer>${copyright.message}</footer>
+	            </configuration>
+	            <reportSets>
+	 							<reportSet>
+	 							  <reports>
+					          <report>aggregate</report>
+					         </reports>
+	        			</reportSet>
+	        		</reportSets>                
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
             </plugin>
         </plugins>
     </reporting>
+
+		<organization>
+			<name>European Bioinformatics Institute and University of Groningen</name>
+		</organization>
 
     <!-- Licensing -->
     <licenses>
@@ -90,14 +219,15 @@
         <mailingList>
             <name>ontocat-users</name>
             <post>ontocat-users@lists.sourceforge.net</post>
+            <archive>https://lists.sourceforge.net/lists/listinfo/ontocat-users</archive>
         </mailingList>
     </mailingLists>
 
     <!-- Bug Tracker -->
-    <!--<issueManagement>
-    <system>sourceforge</system>
-    <url>https://sourceforge.net/tracker/?group_id=331755</url>
-  </issueManagement>  -->
+    <!-- issueManagement>
+    	<system>Source Forge Tracker</system>
+    	<url>https://sourceforge.net/tracker/?group_id=331755</url>
+  	</issueManagement -->
 
     <!-- Developer Listing -->
     <developers>
@@ -140,6 +270,7 @@
             <timezone>0</timezone>
             <properties/>
         </developer>
+        
     </developers>
 
     <!-- SVN connection -->
@@ -154,6 +285,12 @@
             http://www.ontocat.org/browser
         </url>
     </scm>
+
+		<ciManagement>
+		 	<system>Hudson</system>
+		 	<url>http://hudson-ci.org/</url>
+		</ciManagement>
+
 
     <!-- Maven repository deploy -->
     <distributionManagement>
@@ -172,11 +309,13 @@
                 scp://shell.sourceforge.net/home/project-web/ontocat/htdocs/maven/repo
             </url>
         </snapshotRepository>
-        
+
+                
         <site>
             <id>ontocat.sf.net</id>
-            <url>scp://shell.sourceforge.net/home/project-web/ontocat/htdocs</url>
-        </site -->
+             <url>scp://shell.sourceforge.net/home/project-web/ontocat/htdocs</url>
+        </site>
+        -->
         
 		  <repository>
 			  <id>ebi-repo</id>
@@ -225,106 +364,32 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <!-- jutils needs this -->
+				<repository>
+					<id>ebi-repo</id>
+					<name>EBI repo</name>
+					<url>http://www.ebi.ac.uk/~maven/m2repo</url>
+				</repository>        
     </repositories>
-
-    <!-- Required Build Plugins -->
-    <profiles>
-    <profile>
-      <id>small-jar</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <finalName>ontocat</finalName>
-
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                 <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                 <configuration>
-
-                    <descriptors>
-
-                        <descriptor>assemble_small.xml</descriptor>
-                     </descriptors>
-                </configuration>
-            </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>bioconductor-jar</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <finalName>ontocat</finalName>
-
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                 <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                 <configuration>
-                    <descriptors>
-
-                        <descriptor>assemble_bioconductor.xml</descriptor>
-                     </descriptors>
-                </configuration>
-            </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>full-jar</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-        <finalName>ontocat</finalName>
-
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-            </plugin>
-        </plugins>
-      </build>
-    </profile>
-    </profiles>
-
-
 
     <dependencies>
         <!-- ontocat dependencies -->
+				<dependency>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+					<version>1.5.11</version>
+				</dependency>
+				<dependency>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+					<version>1.5.11</version>
+				</dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+        </dependency>
+            				
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
@@ -344,11 +409,6 @@
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
             <version>1.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
         </dependency>
         <dependency>
             <groupId>jargs</groupId>
@@ -417,6 +477,167 @@
             <artifactId>owlapi</artifactId>
             <version>3.2.2</version>
         </dependency>
+        
+
+				<!-- ____________ Test ______________ -->
+				
+			  <dependency>
+			    <groupId>junit</groupId>
+			    <artifactId>junit</artifactId>
+			    <version>4.8.2</version>
+			    <scope>test</scope>
+			  </dependency>
+		
+<!-- 				<dependency> -->
+<!-- 					<groupId>ch.qos.logback</groupId> -->
+<!-- 					<artifactId>logback-classic</artifactId> -->
+<!-- 					<version>0.9.29</version> -->
+<!-- 				</dependency> -->
+				<dependency>
+				  <groupId>uk.ac.ebi</groupId>
+				  <artifactId>jutils</artifactId>
+				  <version>1.3</version>        
+				</dependency>
     </dependencies>
+
+		<profiles>
+
+		  <profile>
+		    <!-- 
+		      This requires the user/pass of the Source Forge account. It can be set by adding a profile to 
+		     	~/.m2/settings.xml that looks like this: 
+		     	
+		     	<settings>
+		     	...
+			     	<profiles>
+					    <profile>
+					      <id>ontocat</id>
+					      <properties>
+					        <ontocat.sf.user>brandizi</ontocat.sf.user>
+					        <ontocat.sf.password>***</ontocat.sf.password>
+					
+					        <ontocat.hudson.user>brandizi</ontocat.hudson.user>
+					        <ontocat.hudson.password>***</ontocat.hudson.password>
+					      </properties>
+					    </profile>		     	
+			     	</profiles>
+		     	</settings>
+		     	
+		     	Once this is set, the SF updated can be invoked by means of mvn -Pontocat,update-sf deploy 
+		    -->
+		    <id>update-sf</id>
+		    <build>
+		    	<plugins>
+				    <plugin>
+				      <groupId>org.apache.maven.plugins</groupId>
+				      <artifactId>maven-antrun-plugin</artifactId>
+				      <executions>
+				        <execution>
+				          <id>update-sf</id>
+				          <configuration>
+				            <tasks>
+				              <!-- 
+				                Doesn't work, due to a known bug, we use the approach of defining variables in a profile defined
+				                in ~/m2/.settings.xml 
+				              -->
+											<!--  input message="Please enter your username in ontocat@SF" addproperty="tc.user" defaultvalue="tadamusiak" /  -->
+											<!--  input message="Please enter your password for ontocat@SF:" addproperty="tc.pass" / -->
+		
+											<!-- For testing puorposes
+											<sshexec host="localhost" trust="true" verbose="true" username="${ontocat.sf.user}" password="${ontocat.sf.password}" command="cp -Rf /Users/brandizi/Documents/Work/ebi/ontocat/svn/ontoCAT/src /tmp" />
+											<scp file="src/main/assembly/resources/release_notes.txt" trust="true" verbose="true" todir="${ontocat.sf.user}@localhost:/tmp" password="${ontocat.sf.password}" />
+											-->
+											
+											<!-- Not sure ',ontocat' is needed -->
+											<sshexec 
+												host="shell.sourceforge.net" trust="true" verbose="true" 
+												username="${ontocat.sf.user},ontocat" password="${ontocat.sf.password}" 
+												command="mv /home/frs/project/o/on/ontocat/ontoCAT/release/*.zip /home/frs/project/o/on/ontocat/ontoCAT/archive/." />
+									 
+											<scp 
+												file="src/main/assembly/resources/release_notes.txt" 
+												trust="true" verbose="true" 
+												todir="${ontocat.sf.user},ontocat@frs.sourceforge.net:/home/pfs/project/o/on/ontocat/ontoCAT/release/README"
+												password="${ontocat.sf.password}" />
+									
+											<!-- copy new release --> 
+											<scp 
+												file="dist/${project.name}-${project.version}.zip" 
+												trust="true" verbose="true" 
+												todir="${ontocat.sf.user},ontocat@frs.sourceforge.net:/home/pfs/project/o/on/ontocat/ontoCAT/release/." 
+												password="${ontocat.sf.password}" />
+									
+				            </tasks>
+				          </configuration>
+				          <phase>deploy</phase>
+				          <goals>
+				            <goal>run</goal>
+				          </goals>
+				        </execution>
+				      </executions>
+				      <dependencies>
+				      <dependency>
+								<groupId>org.apache.ant</groupId>
+								<artifactId>ant-jsch</artifactId>
+								<version>1.7.1</version>
+ 				      </dependency>
+				      </dependencies>
+				    </plugin>
+		    	</plugins>
+		    </build>
+		    <properties>
+		    </properties>
+		  </profile>
+		  
+		  <!--
+		  	See above the update-sf profile for details. This can be invoked via mvn -Pontocat,hudson-to-sf deploy 
+		  -->
+		  <profile>
+		    <id>hudson-to-sf</id>
+		    <build>
+		    	<plugins>
+				    <plugin>
+				      <groupId>org.apache.maven.plugins</groupId>
+				      <artifactId>maven-antrun-plugin</artifactId>
+				      <executions>
+				        <execution>
+				          <id>hudson-to-sf</id>
+				          <configuration>
+				            <tasks>
+											<scp 
+												file="src/main/assembly/resources/release_notes.txt" 
+											 	trust="true" verbose="true" 
+											 	todir="${ontocat.hudson.user},ontocat@frs.sourceforge.net:/home/pfs/project/o/on/ontocat/ontoCAT/nightly_build/README" 
+											  password="${ontocat.hudson.password}" />
+									
+											<!-- copy new release  -->
+											<scp 
+												file="dist/${project.name}-${project.version}.zip" 
+												trust="true" verbose="true" 
+												todir="${ontocat.hudson.user},ontocat@frs.sourceforge.net:/home/pfs/project/o/on/ontocat/ontoCAT/nightly_build/ontocat-snapshot.zip" 
+												password="${ontocat.hudson.password}" />
+				            </tasks>
+				          </configuration>
+				          <phase>deploy</phase>
+				          <goals>
+				            <goal>run</goal>
+				          </goals>
+				        </execution>
+				      </executions>
+				      <dependencies>
+				      <dependency>
+								<groupId>org.apache.ant</groupId>
+								<artifactId>ant-jsch</artifactId>
+								<version>1.7.1</version>
+ 				      </dependency>
+				      </dependencies>
+				    </plugin>
+		    	</plugins>
+		    </build>
+		    <properties>
+		    </properties>
+		  </profile>
+		  		  
+		</profiles>
 
 </project>

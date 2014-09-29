@@ -1,0 +1,91 @@
+<assembly>
+  <id>distro</id>
+ 
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <fileSets>
+
+		<fileSet>
+			<directory>src/main/assembly/resources</directory>
+      <excludes>
+        <!-- Defined below, with x permissions, non-executables only here -->
+        <exclude>**/*.sh</exclude>
+      </excludes>  
+      <fileMode>0644</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory></outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+
+		<fileSet>
+			<directory>src/main/assembly/resources</directory>
+      <includes>
+        <include>**/*.sh</include>
+      </includes>  
+      <fileMode>0755</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory></outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+		
+		<fileSet>
+			<directory></directory>
+      <excludes>
+        <!-- Defined below, with x permissions, non-executables only here -->
+        <exclude>**/*.sh</exclude>
+        <exclude>.project</exclude>
+        <exclude>.classpath</exclude>
+        <exclude>.settings/**/*</exclude>
+        <exclude>target/**/*</exclude>
+        <exclude>old/**/*</exclude>
+      </excludes>  
+      <fileMode>0644</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory>source</outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+
+		<fileSet>
+			<directory></directory>
+      <includes>
+        <include>**/*.sh</include>
+      </includes>  
+      <fileMode>0755</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory>source</outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>		
+		
+		<!-- We need this empty file set to overcome a bug and have correct permissions for doc/ -->
+		<fileSet>
+			<directory>target</directory>
+			<excludes><exclude>**/*</exclude></excludes>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory>doc</outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+		<fileSet>
+			<directory>target/site</directory>
+			<fileMode>0644</fileMode>			
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory>doc/project-site</outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+
+
+    <fileSet>
+     	<directory>target</directory>
+      <includes>
+        <include>${project.name}-${project.version}.jar</include>
+        <include>${project.name}-${project.version}-with-deps.jar</include>
+        <include>${project.name}-${project.version}-with-deps-small.jar</include>
+      </includes>
+			<outputDirectory></outputDirectory>
+      <fileMode>0644</fileMode>
+    </fileSet>
+
+  </fileSets>
+
+</assembly>
